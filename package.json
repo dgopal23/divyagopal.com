@@ -18,6 +18,7 @@
     "react-bootstrap": "^2.2.3",
     "react-datocms": "^3.0.12",
     "react-dom": "^18.0.0",
+    "sass": "^1.58.3",
     "tiny-json-http": "^7.4.2"
   },
   "devDependencies": {
