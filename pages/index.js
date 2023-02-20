@@ -1,68 +1,65 @@
-import Layout from "../src/components/Layout"
-import { request } from "../lib/datocms"
-import { useQuerySubscription } from "react-datocms"
+import { renderMetaTags, useQuerySubscription } from "react-datocms"
+import Head from "next/head"
+import { Layout } from "@/components/layout"
+import { Blocks, Navigation } from "@/components/utils"
+import { createSubscription } from "@/lib/datocms"
+import { headerFragment, metaTagsFragment } from "@/lib/fragments"
 import Link from "next/link"
-import { Container, Row, Col } from "react-bootstrap"
 
-export async function getStaticProps({ params, preview = false }) {
-  const graphqlRequest = {
-    query: `
-      {
-        landings: allLandingPages {
-          heroTitle
-          slug
-        }
+const HOME_QUERY = `
+  {
+    site: _site {
+      favicon: faviconMetaTags {
+        ...metaTagsFragment
       }
-          `,
-    preview,
+    }
+    header {
+      ...headerFragment
+    }
+    home {
+      title
+      description
+      seo: _seoMetaTags {
+        ...metaTagsFragment
+      }
+    }
   }
+  ${headerFragment}
+  ${metaTagsFragment}
+`
+
+export const getStaticProps = async ({ preview = false }) => {
   return {
     props: {
-      subscription: preview
-        ? {
-            ...graphqlRequest,
-            initialData: await request(graphqlRequest),
-            token: process.env.DATOCMS_API_READONLY_TOKEN,
-            environment: process.env.NEXT_DATOCMS_ENVIRONMENT || null,
-          }
-        : {
-            enabled: false,
-            initialData: await request(graphqlRequest),
-          },
+      subscription: await createSubscription(preview, {
+        query: HOME_QUERY
+      }),
+      preview
     },
   }
 }
 
-export default function LandingPage({ subscription }) {
-  const {
-    data: { landings },
-  } = useQuerySubscription(subscription)
+export const Index = ({ subscription }) => {
+  const { data } = useQuerySubscription(subscription);
 
   return (
-    <Layout pageTitle="Landing Page Template in Next.js">
-      <section className="section" id="services">
-        <Container>
-          <Row className="justify-content-center">
-            <Col lg={6} md={8}>
-              <div className="title text-center mb-5 mt-5">
-                <h1 className="font-weight-bold text-dark mb-5">
-                  <span className="text-warning">All landing pages</span>
-                </h1>
-                {landings &&
-                  landings.map(({ slug, heroTitle }) => {
-                    return (
-                      <div key={slug} className="text-center mb-2">
-                        <Link href={`/landings/${slug}`}>
-                          <a>{heroTitle}</a>
-                        </Link>
-                      </div>
-                    )
-                  })}
-              </div>
-            </Col>
-          </Row>
-        </Container>
+    <Layout center>
+      <Head>
+        {renderMetaTags(data.home.seo.concat(data.site.favicon))}
+      </Head>
+      <section className="lg:grid lg:grid-cols-3 lg:gap-12">
+        <div className="flex items-end lg:col-span-1 mb-6 lg:mb-0">
+          <div>
+            <h3 className="font-medium font-montserrat uppercase tracking-widest text-base mb-2">{data.home.title}</h3>
+            <p className="font-body font-montserrat text-xs md:text-sm leading-relaxed">{data.home.description}</p>
+          </div>
+        </div>
+        <div className="lg:col-span-2 mt-10 lg:mt-0">
+          <Navigation data={data.header} />
+        </div>
       </section>
     </Layout>
   )
 }
+
+export default Index
