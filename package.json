@@ -13,6 +13,7 @@
     "datocms-structured-text-to-plain-text": "^2.0.4",
     "graphql-request": "^5.1.0",
     "next": "^12.1.5",
+    "next-plausible": "^3.7.2",
     "prettier": "2.6.2",
     "react": "^18.0.0",
     "react-bootstrap": "^2.2.3",

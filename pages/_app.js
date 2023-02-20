@@ -1,7 +1,11 @@
+import PlausibleProvider from "next-plausible"
+
 import "../styles/globals.scss"
 
-function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
-}
+const App = ({ Component, pageProps }) => (
+  <PlausibleProvider domain={process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN}>
+    <Component {...pageProps} />
+  </PlausibleProvider>
+)
 
-export default MyApp
+export default App
